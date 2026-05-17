@@ -23,9 +23,10 @@ main = do
     ["auto"]    -> auto
     ["proved"]  -> proved
     ["matrix"]  -> matrix
-    ["sep"]     -> sep
-    ["lattice"] -> lattice
-    _           -> usage
+    ["sep"]      -> sep
+    ["lattice"]  -> lattice
+    ["classify"] -> classify
+    _            -> usage
 
 usage :: IO ()
 usage = do
@@ -38,6 +39,7 @@ usage = do
   putStrLn "  matrix      命題 × 命題の含意行列 HTML を生成  (A)"
   putStrLn "  sep         反例モデルカード HTML を生成         (B)"
   putStrLn "  lattice     格子図 + 辺注釈テーブル HTML を生成  (C)"
+  putStrLn "  classify    有限モデル分類データベース HTML を生成"
   exitFailure
 
 generate :: IO ()
@@ -168,6 +170,29 @@ sep = do
   putStrLn $ "  " ++ show (length sepQs) ++ " counterexample card(s)"
   where
     sepQs = filter ((== Sep) . queryExpect) defaultQueries
+
+-- | D: 有限モデル分類データベース HTML
+classify :: IO ()
+classify = do
+  createDirectoryIfMissing True "out"
+  putStrLn "=== 有限モデル分類 ==="
+  sections <- mapM run
+    [ ("3点線形",        linearCarrier3)
+    , ("4点線形",        linearCarrier4)
+    , ("4点ダイアモンド", diamondCarrier)
+    ]
+  let html = renderClassifyHtml sections
+  withFile "out/zoo-classify.html" WriteMode $ \h -> hPutStr h html
+  putStrLn "Wrote out/zoo-classify.html"
+  where
+    run (name, c) = do
+      putStr $ "  " ++ name ++ " ... "
+      let recs   = classifyModels c
+          groups = groupByProfile recs
+          total  = length recs
+          nProf  = length groups
+      putStrLn $ show total ++ " モデル → " ++ show nProf ++ " プロファイル"
+      return (name, total, groups)
 
 -- | C: 格子図 + 注釈テーブル HTML
 lattice :: IO ()

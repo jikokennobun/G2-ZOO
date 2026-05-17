@@ -42,6 +42,7 @@ library
                     G2Zoo.AutoZoo
                     G2Zoo.Algebra
                     G2Zoo.Report
+                    G2Zoo.Classify
   build-depends:    base >= 4.14 && < 5
 
 executable g2-zoo
