@@ -1,0 +1,146 @@
+name: Deploy G2-Zoo to GitHub Pages
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Cache Stack
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.stack
+            .stack-work
+          key: ${{ runner.os }}-stack-${{ hashFiles('stack.yaml', '*.cabal') }}
+          restore-keys: |
+            ${{ runner.os }}-stack-
+
+      - name: Set up Haskell (Stack)
+        uses: haskell-actions/setup@v2
+        with:
+          enable-stack: true
+          stack-version: 'latest'
+
+      - name: Install Graphviz
+        run: sudo apt-get install -y graphviz
+
+      - name: Build
+        run: stack build
+
+      - name: Generate Zoo diagrams
+        run: |
+          mkdir -p out
+          stack exec g2-zoo
+          stack exec g2-zoo -- auto
+          stack exec g2-zoo -- proved
+          dot -Tsvg out/zoo.dot        -o out/zoo.svg
+          dot -Tsvg out/zoo-auto.dot   -o out/zoo-auto.svg
+          dot -Tsvg out/zoo-proved.dot -o out/zoo-proved.svg
+
+      - name: Create index.html
+        run: |
+          cat > out/index.html << 'HTMLEOF'
+          <!DOCTYPE html>
+          <html lang="ja">
+          <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>G2-Zoo: APS 動物園</title>
+            <style>
+              body {
+                font-family: sans-serif;
+                max-width: 1200px;
+                margin: 2em auto;
+                padding: 0 1.5em;
+                color: #222;
+                background: #fafafa;
+              }
+              h1 { font-size: 1.6em; margin-bottom: 0.3em; }
+              p.subtitle { color: #555; margin-top: 0; }
+              h2 { font-size: 1.2em; border-bottom: 1px solid #ccc; padding-bottom: 0.2em; }
+              figure { margin: 1.5em 0; background: white; padding: 1em; border: 1px solid #ddd; border-radius: 4px; }
+              figcaption { font-style: italic; color: #555; margin-top: 0.6em; font-size: 0.9em; }
+              img { max-width: 100%; display: block; margin: 0 auto; }
+              .legend { font-size: 0.9em; background: #f4f4f4; padding: 0.8em 1.2em; border-radius: 4px; margin: 1em 0; }
+              .legend dt { font-weight: bold; float: left; width: 8em; }
+              .legend dd { margin-left: 8.5em; margin-bottom: 0.3em; }
+            </style>
+          </head>
+          <body>
+            <h1>G2-Zoo: APS 動物園</h1>
+            <p class="subtitle">
+              APS (Abstract Provability Structure) 周辺の命題間の含意関係を視覚化したグラフ。<br>
+              Beklemishev &amp; Shamkanov (2016) および渋谷個別セミナー (2026) の内容に基づく。
+            </p>
+
+            <div class="legend">
+              <dl>
+                <dt>実線</dt>
+                <dd>含意が成立する (文脈ラベルを付記)</dd>
+                <dt>点線 + ×</dt>
+                <dd>反例モデルが存在する (分離)</dd>
+                <dt>点線 + ?</dt>
+                <dd>含意の成否が未解決</dd>
+              </dl>
+            </div>
+
+            <h2>手書き動物園</h2>
+            <figure>
+              <img src="zoo.svg" alt="手書き動物園">
+              <figcaption>
+                seminar2 メモから手書きした既知の含意・反例関係。
+                出典: <a href="zoo-notes.md">zoo-notes.md</a>
+              </figcaption>
+            </figure>
+
+            <h2>自動生成動物園</h2>
+            <figure>
+              <img src="zoo-auto.svg" alt="自動生成動物園">
+              <figcaption>
+                3点線形担体上の全モデル (729件) を列挙して機械的に推論した動物園。
+                出典: <a href="zoo-auto-notes.md">zoo-auto-notes.md</a>
+              </figcaption>
+            </figure>
+
+            <h2>実線のみ動物園（格子図）</h2>
+            <figure>
+              <img src="zoo-proved.svg" alt="実線のみ動物園">
+              <figcaption>
+                正の含意（成立が証明されている関係）のみを抽出した整理済みグラフ。
+                出典: <a href="zoo-proved-notes.md">zoo-proved-notes.md</a>
+              </figcaption>
+            </figure>
+          </body>
+          </html>
+          HTMLEOF
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: out/
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

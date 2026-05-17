@@ -1,0 +1,25 @@
+.stack-work/
+dist/
+dist-newstyle/
+*.hi
+*.o
+*.dyn_hi
+*.dyn_o
+*.prof
+*.aux
+*.hp
+*.eventlog
+.ghc.environment.*
+out/
+*.svg
+*.png
+!docs/*.svg
+!docs/*.png
+
+# Claude Code local settings
+.claude/
+
+# Lean build artifacts
+lean/.lake/builds/
+lean/.lake/packages/
+lean/.lake/config/
