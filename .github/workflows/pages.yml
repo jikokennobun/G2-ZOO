@@ -51,6 +51,8 @@ jobs:
           stack exec g2-zoo -- matrix
           stack exec g2-zoo -- sep
           stack exec g2-zoo -- lattice
+          stack exec g2-zoo -- classify
+          stack exec g2-zoo -- guide
           dot -Tsvg out/zoo.dot        -o out/zoo.svg
           dot -Tsvg out/zoo-auto.dot   -o out/zoo-auto.svg
           dot -Tsvg out/zoo-proved.dot -o out/zoo-proved.svg
@@ -118,6 +120,8 @@ jobs:
               <a class="report-link" href="zoo-matrix.html">A: 含意行列</a>
               <a class="report-link" href="counterexamples.html">B: 反例モデルカード</a>
               <a class="report-link" href="zoo-lattice.html">C: 格子図ビュー</a>
+              <a class="report-link" href="zoo-classify.html">D: モデル分類DB</a>
+              <a class="report-link" href="zoo-guide.html">E: モデル構成ガイド</a>
             </div>
 
             <h2>手書き動物園</h2>

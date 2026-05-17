@@ -26,6 +26,7 @@ main = do
     ["sep"]      -> sep
     ["lattice"]  -> lattice
     ["classify"] -> classify
+    ["guide"]    -> guide
     _            -> usage
 
 usage :: IO ()
@@ -40,6 +41,7 @@ usage = do
   putStrLn "  sep         反例モデルカード HTML を生成         (B)"
   putStrLn "  lattice     格子図 + 辺注釈テーブル HTML を生成  (C)"
   putStrLn "  classify    有限モデル分類データベース HTML を生成"
+  putStrLn "  guide       名前付きモデルの構成ガイド HTML を生成"
   exitFailure
 
 generate :: IO ()
@@ -170,6 +172,69 @@ sep = do
   putStrLn $ "  " ++ show (length sepQs) ++ " counterexample card(s)"
   where
     sepQs = filter ((== Sep) . queryExpect) defaultQueries
+
+-- | E: 名前付きモデル構成ガイド HTML
+guide :: IO ()
+guide = do
+  createDirectoryIfMissing True "out"
+  let ms = namedModels
+      html = renderGuideHtml ms
+  withFile "out/zoo-guide.html" WriteMode $ \h -> hPutStr h html
+  putStrLn "Wrote out/zoo-guide.html"
+  putStrLn $ "  " ++ show (length ms) ++ " named model(s)"
+
+namedModels :: [NamedModel]
+namedModels =
+  [ mkNamedModel "Linear3 (L_Id)" "3点線形"
+      "最も単純な 3点線形モデル。□=☒=恒等写像。\
+      \A2: ⊤≤☒⊥=⊥ が ⊤≤⊥ となり成立しないため、公理系の前提なしでは使えない。\
+      \□ と ☒ の基準点として参照用に掲載。"
+      (Proxy :: Proxy Linear3)
+
+  , mkNamedModel "Case1" "3点線形"
+      "seminar2 の Case1。APS (A1–A4) を満たし G2 を満たすが FG2 は満たさない 3値最小例。\
+      \☒⊤=a, ☒a=⊤, ☒⊥=⊤ と設定することで ☒☒⊤=☒a=⊤ > a=☒⊤ となり FG2 が失敗する。\
+      \∃☒-FP も持たない。APS ならば FG2 ⟺ ∃☒-FP (B&S 2016) と整合的。"
+      (Proxy :: Proxy Case1)
+
+  , mkNamedModel "Case2" "3点線形"
+      "Case1 と同じ □/☒ テーブルを持つ別名モデル (seminar2 では同表)。\
+      \seminar2 での Case2 は「APS で G2 を満たし ∃☒-FP を持たない例」として導入された。\
+      \Case1 との同型性を明示するために別名で定義してある。"
+      (Proxy :: Proxy Case2)
+
+  , mkNamedModel "Case3" "3点線形"
+      "A1+A2+A4 を満たすが A3 を外したモデル。☒a=a なので ∃☒-FP を持つ。\
+      \しかし FG2 は満たさない (☒☒⊤=☒⊥=⊤ > ⊥=☒⊤ ... 実は ☒⊤=⊥ であることを確認のこと)。\
+      \「A3 なしでは ∃☒-FP ⇒ FG2 が成立しない」ことを示す分離例。"
+      (Proxy :: Proxy Case3)
+
+  , mkNamedModel "Case4" "3点線形"
+      "A1+A2+A3 を満たすが A4 (☒x≤□☒x) は外したモデル。□≡⊥ と設定。\
+      \A4': □x≤□□x は満たす (□≡⊥ なら □□x=□⊥=⊥=□x で成立)。\
+      \∃☒-FP あり (☒a=a)。「A4 と A4' は等価でない」を示す分離例。"
+      (Proxy :: Proxy Case4)
+
+  , mkNamedModel "Trivial2" "2点"
+      "2点退化モデル ({⊥,⊤})。□=id, ☒≡⊥ (☒は常に⊥を返す)。\
+      \A2: ⊤≤☒⊥=⊥ が成立しないため APS 公理を満たさない。\
+      \一貫性は満たす (⊤≰⊥)。G2: ☒⊤=⊥≤⊥ ならば ⊤≤⊥ となるべきだが後者が偽→G2 失敗。\
+      \Syntactical Result の反例モデルとして seminar2 で多用される。"
+      (Proxy :: Proxy Trivial2)
+
+  , mkNamedModel "Case1Godel" "3点線形"
+      "Case1 と同じ APS 構造を持ち、含意演算を Gödel 含意 (x→y = ⊤ if x≤y, else y) に替えたモデル。\
+      \内在化条件 ⊤≤x→y ⟺ x≤y を Łukasiewicz 含意 (Case1) と比較するための例。\
+      \Gödel 含意は内在化条件を満たすが Łukasiewicz は満たさない。"
+      (Proxy :: Proxy Case1Godel)
+
+  , mkNamedModel "L4Id" "4点線形"
+      "WFG2 ⇏ FG2 の最小反例。4点線形 {⊥<a<b<⊤}、□=id。\
+      \☒⊤=a, ☒b=a, ☒a=b, ☒⊥=⊤ と設定。\
+      \WFG2: ☒⊤=a≠⊥ なので前提が偽→空虚に真。\
+      \FG2: ☒☒⊤=☒a=b, ☒⊤=a, b≰a で失敗。APS (A1–A4) はすべて満たす。"
+      (Proxy :: Proxy L4Id)
+  ]
 
 -- | D: 有限モデル分類データベース HTML
 classify :: IO ()
