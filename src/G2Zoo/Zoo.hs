@@ -51,6 +51,12 @@ propLabel PLoeb        = "Loeb"
 propLabel PFLoeb       = "FLoeb"
 propLabel PConsistency = "Con"
 
+-- | DOT 画像用の表示文字列。PNG化でフォント依存の強い記号が化けないようにする。
+dotPropLabel :: Prop -> String
+dotPropLabel PHasDiamFP   = "Diam-FP"
+dotPropLabel PHasBoxFP    = "Box-FP"
+dotPropLabel p            = propLabel p
+
 -- | 含意が成立する文脈 (どの代数構造の上での話か).
 --
 -- 'CCustom' は A1+A2 のように任意の公理の組合せを記述するための逃げ場.
@@ -129,13 +135,9 @@ renderDot es = unlines $
   , "digraph G2Zoo {"
   , "  rankdir=TB;"
   , "  bgcolor=\"white\";"
-  , "  graph [fontname=\"MS Gothic\", nodesep=0.9, ranksep=1.2,"
-  , "         concentrate=false, splines=true, overlap=false];"
-  , "  node  [shape=plaintext, fontcolor=\"black\","
-  , "         fontname=\"MS Gothic\", fontsize=20];"
-  , "  edge  [fontname=\"MS Gothic\", fontsize=12,"
-  , "         color=\"black\", fontcolor=\"black\","
-  , "         penwidth=1.4, arrowsize=1.0];"
+  , "  graph [nodesep=1.2, ranksep=1.0, splines=spline, overlap=false, outputorder=edgesfirst];"
+  , "  node  [shape=plaintext, fontsize=16];"
+  , "  edge  [fontsize=11, penwidth=1.2, arrowsize=0.8];"
   , ""
   , "  // nodes"
   ]
@@ -163,7 +165,7 @@ rankGroupLines props =
 
 renderNode :: Prop -> String
 renderNode p =
-  "  " ++ propId p ++ " [label=<<B>" ++ escapeHtml (propLabel p) ++ "</B>>];"
+  "  " ++ propId p ++ " [label=\"" ++ dotPropLabel p ++ "\"];"
 
 renderEdge :: Edge -> String
 renderEdge e =
@@ -171,18 +173,15 @@ renderEdge e =
   ++ " [" ++ intercalate ", " attrs ++ "];"
   where
     ctx = contextLabel (edgeCtx e)
-    htmlLabel marker =
-      "label=<<TABLE BORDER=\"0\" CELLBORDER=\"0\" CELLSPACING=\"0\">"
-      ++ "<TR><TD><B>" ++ marker ++ "</B></TD></TR>"
-      ++ "<TR><TD><B>" ++ escapeHtml ctx ++ "</B></TD></TR>"
-      ++ "</TABLE>>"
-    -- ランクが逆行する辺はレイアウト制約から外す（上向き矢印がランク配置を崩さないように）
-    backward    = propRank (edgeFrom e) > propRank (edgeTo e)
+    -- ランクが逆行する辺はレイアウト制約から外す
+    backward     = propRank (edgeFrom e) > propRank (edgeTo e)
     noConstraint = ["constraint=false" | backward]
     coreAttrs = case edgeKind e of
-      Proved    -> ["label=<<B>" ++ escapeHtml ctx ++ "</B>>"]
-      Open      -> [htmlLabel "?", "style=dotted"]
-      Separated -> [htmlLabel "✗", "style=dotted"]
+      Proved    -> ["label=\"" ++ ctx ++ "\""]
+      Open      -> ["label=\"? " ++ ctx ++ "\"", "style=dotted"
+                   , "color=\"#aa7700\"", "fontcolor=\"#aa7700\""]
+      Separated -> ["label=\"x " ++ ctx ++ "\"", "style=dotted"
+                   , "color=\"#b00000\"", "fontcolor=\"#b00000\""]
     attrs = noConstraint ++ coreAttrs
 
 propId :: Prop -> String
@@ -221,18 +220,6 @@ propColumn PConsistency = 2
 -- | Proved 辺のみ抽出する。正の含意だけを表示したいときに使う。
 filterProved :: [Edge] -> [Edge]
 filterProved = filter ((== Proved) . edgeKind)
-
--- | HTML ライクラベル用エスケープ。
--- @<@、@>@、@&@ を実体参照に変換し、実改行は @<BR/>@ に変換する。
-escapeHtml :: String -> String
-escapeHtml = concatMap esc
-  where
-    esc '<'  = "&lt;"
-    esc '>'  = "&gt;"
-    esc '&'  = "&amp;"
-    esc '"'  = "&quot;"
-    esc '\n' = "<BR/>"
-    esc c    = [c]
 
 -- ============================================================================
 -- TikZ / LaTeX 出力

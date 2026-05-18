@@ -48,13 +48,15 @@ kindBadge Open      = "<span class=\"open\">?</span>"
 -- | 全ページ共通 CSS.
 commonCss :: String
 commonCss = unlines
-  [ "body { font-family: sans-serif; margin: 2em; background: #fafafa; color: #222; }"
-  , "h1 { font-size: 1.5em; margin-bottom: 0.2em; }"
-  , "h2 { font-size: 1.15em; border-bottom: 1px solid #ccc; padding-bottom: 0.2em; margin-top: 1.2em; }"
-  , "p  { color: #555; margin: 0.3em 0 0.9em; }"
-  , ".proved { color: #1a7a1a; font-weight: bold; }"
-  , ".sep    { color: #cc2222; font-weight: bold; }"
-  , ".open   { color: #cc7700; font-weight: bold; }"
+  [ "body { background: #fff; color: #000; font-family: monospace, serif;"
+  , "       line-height: 1.5; margin: 0 auto; max-width: 900px; padding: 1em 2em 3em; }"
+  , "h1 { font-size: 1.3em; margin: 0.3em 0 0.5em; }"
+  , "h2 { font-size: 1.1em; margin-top: 1.2em; border-bottom: 1px solid #000; padding-bottom: 0.1em; }"
+  , "p  { margin: 0.3em 0 0.7em; }"
+  , "a { color: #00f; }"
+  , ".proved { color: #060; font-weight: bold; }"
+  , ".sep    { color: #900; font-weight: bold; }"
+  , ".open   { color: #630; font-weight: bold; }"
   ]
 
 -- ============================================================================
@@ -73,9 +75,9 @@ renderMatrix es = unlines
   , "<style>"
   , commonCss
   , "table { border-collapse: collapse; }"
-  , "th, td { border: 1px solid #ccc; padding: 6px 10px; text-align: center; white-space: nowrap; font-size: 0.9em; }"
-  , "th { background: #f0f0f0; }"
-  , "td.diag { background: #e0e0e0; }"
+  , "th, td { border: 1px solid #ccc; padding: 4px 8px; text-align: center; white-space: nowrap; font-size: 0.9em; }"
+  , "th { background: #f5f5f5; }"
+  , "td.diag { background: #eee; }"
   , "td.empty { color: #bbb; }"
   , "dl.legend { margin-top: 1.5em; }"
   , "dl.legend dt { font-weight: bold; float: left; width: 1.6em; }"
@@ -136,12 +138,11 @@ renderCounterexamplesHtml qs = do
     , "<title>G2-Zoo: 反例モデルカード</title>"
     , "<style>"
     , commonCss
-    , ".card { background: white; border: 1px solid #ddd; border-radius: 6px;"
-    , "        padding: 0.9em 1.3em; margin: 0.8em 0; max-width: 660px; }"
-    , ".card h2 { font-size: 1.0em; margin: 0 0 0.5em; color: #222; border: none; padding: 0; }"
-    , "pre.model { background: #f4f4f4; padding: 0.6em 0.9em; border-radius: 4px;"
+    , ".card { border: 1px solid #ccc; padding: 0.7em 1em; margin: 0.7em 0; max-width: 660px; }"
+    , ".card h2 { font-size: 1.0em; margin: 0 0 0.4em; border: none; padding: 0; }"
+    , "pre.model { background: #f5f5f5; padding: 0.5em 0.8em; border: 1px solid #ccc;"
     , "            font-family: monospace; font-size: 0.88em; margin: 0; line-height: 1.5; }"
-    , ".warn { color: #cc7700; font-style: italic; margin: 0; }"
+    , ".warn { color: #630; font-style: italic; margin: 0; }"
     , "</style></head><body>"
     , "<h1>G2-Zoo: 反例モデルカード</h1>"
     , "<p>" ++ show (length sepQs) ++ " 件の分離問題について"
@@ -173,10 +174,10 @@ mkCard q = do
 -- C: 格子図 HTML (zoo-proved.svg 参照 + 全辺注釈テーブル)
 -- ============================================================================
 
--- | 正の含意格子図（zoo-proved.svg）と全辺の注釈テーブルを並べた HTML を生成する.
+-- | 正の含意格子図（zoo-proved.png）と全辺の注釈テーブルを並べた HTML を生成する.
 --
--- SVG ファイルは同ディレクトリの @zoo-proved.svg@ を参照するので、
--- あらかじめ @stack exec g2-zoo -- proved@ を実行しておく必要がある。
+-- PNG ファイルは同ディレクトリの @zoo-proved.png@ を参照するので、
+-- あらかじめ @stack exec g2-zoo -- proved@ と Graphviz の PNG 変換を実行しておく必要がある。
 renderLatticeHtml :: [Edge] -> String
 renderLatticeHtml es = unlines
   [ "<!DOCTYPE html>"
@@ -184,26 +185,20 @@ renderLatticeHtml es = unlines
   , "<title>G2-Zoo: 格子図ビュー</title>"
   , "<style>"
   , commonCss
-  , ".layout { display: flex; gap: 2.5em; align-items: flex-start; flex-wrap: wrap; }"
-  , ".diagram { flex: 0 0 auto; background: white; border: 1px solid #ddd;"
-  , "           border-radius: 6px; padding: 1em 1.2em; }"
-  , ".diagram object, .diagram img { display: block; max-width: 500px; height: auto; }"
+  , ".layout { display: flex; gap: 1.6em; align-items: flex-start; flex-wrap: wrap; }"
+  , ".diagram { flex: 0 0 auto; }"
+  , ".diagram img { display: block; max-width: min(100%, 560px); height: auto; border: 1px solid #ccc; background: white; }"
   , ".sidebar { flex: 1 1 320px; }"
   , "table { border-collapse: collapse; width: 100%; }"
   , "th, td { border: 1px solid #ccc; padding: 4px 8px; font-size: 0.85em; }"
-  , "th { background: #f0f0f0; white-space: nowrap; }"
-  , "td.note { color: #666; font-size: 0.8em; max-width: 160px; }"
-  , "tr.proved-row { background: #f0fff0; }"
-  , "tr.sep-row    { background: #fff4f4; }"
-  , "tr.open-row   { background: #fffbf0; }"
+  , "th { background: #f5f5f5; white-space: nowrap; }"
+  , "td.note { font-size: 0.8em; max-width: 160px; }"
   , "</style></head><body>"
   , "<h1>G2-Zoo: 格子図ビュー</h1>"
   , "<div class=\"layout\">"
   , "  <div class=\"diagram\">"
   , "    <h2>正の含意（格子図）</h2>"
-  , "    <object data=\"zoo-proved.svg\" type=\"image/svg+xml\">"
-  , "      <img src=\"zoo-proved.svg\" alt=\"proved-only lattice\">"
-  , "    </object>"
+  , "    <img src=\"zoo-proved.png\" alt=\"proved-only lattice\">"
   , "    <p style=\"font-size:0.8em;color:#888;margin-top:0.5em\">"
   , "      実線 = 成立した含意</p>"
   , "  </div>"

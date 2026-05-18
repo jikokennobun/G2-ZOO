@@ -10,39 +10,51 @@ import Data.Proxy        (Proxy (..))
 import System.Directory  (createDirectoryIfMissing)
 import System.Environment (getArgs)
 import System.Exit       (exitFailure)
-import System.IO         (IOMode (..), hPutStr, withFile)
+import System.IO         (IOMode (..), hPutStr, hSetEncoding, stderr, stdout, utf8, withFile)
 
 import G2Zoo
 
 main :: IO ()
 main = do
+  hSetEncoding stdout utf8
+  hSetEncoding stderr utf8
   args <- getArgs
   case args of
-    []          -> generate
-    ["search"]  -> search
-    ["auto"]    -> auto
-    ["proved"]  -> proved
-    ["matrix"]  -> matrix
+    []           -> generate
+    ["search"]   -> search
+    ["auto"]     -> auto
+    ["proved"]   -> proved
+    ["matrix"]   -> matrix
     ["sep"]      -> sep
     ["lattice"]  -> lattice
     ["classify"] -> classify
     ["guide"]    -> guide
+    ["g2chain"]  -> g2chain
+    ["algebra"]  -> algebra
     _            -> usage
 
 usage :: IO ()
 usage = do
-  putStrLn "Usage: g2-zoo [search|auto|proved|matrix|sep|lattice]"
+  putStrLn "Usage: g2-zoo [search|auto|proved|matrix|sep|lattice|classify|guide|g2chain|algebra]"
   putStrLn ""
   putStrLn "  (no args)   手書きの動物園 dot を出力し各モデルの充足表を表示"
   putStrLn "  search      有限モデル探索で既定の分離問題を検証"
   putStrLn "  auto        命題リストと文脈リストから動物園を自動生成"
   putStrLn "  proved      正の含意のみを抽出した格子図 dot を出力"
-  putStrLn "  matrix      命題 × 命題の含意行列 HTML を生成  (A)"
-  putStrLn "  sep         反例モデルカード HTML を生成         (B)"
-  putStrLn "  lattice     格子図 + 辺注釈テーブル HTML を生成  (C)"
+  putStrLn "  matrix      命題 × 命題の含意行列 HTML を生成"
+  putStrLn "  sep         反例モデルカード HTML を生成"
+  putStrLn "  lattice     格子図 + 辺注釈テーブル HTML を生成"
   putStrLn "  classify    有限モデル分類データベース HTML を生成"
   putStrLn "  guide       名前付きモデルの構成ガイド HTML を生成"
+  putStrLn "  g2chain     G2-FG2 階層専用 dot + HTML を生成"
+  putStrLn "  algebra     代数系階層図 dot + HTML を生成"
   exitFailure
+
+writeUtf8File :: FilePath -> String -> IO ()
+writeUtf8File path content =
+  withFile path WriteMode $ \h -> do
+    hSetEncoding h utf8
+    hPutStr h content
 
 generate :: IO ()
 generate = do
@@ -50,16 +62,14 @@ generate = do
   let dot   = renderDot   defaultZoo
       tex   = renderTikZ  defaultZoo
       notes = renderNotes defaultZoo
-  withFile "out/zoo.dot"      WriteMode $ \h -> hPutStr h dot
-  withFile "out/zoo.tex"      WriteMode $ \h -> hPutStr h tex
-  withFile "out/zoo-notes.md" WriteMode $ \h -> hPutStr h notes
+  writeUtf8File "out/zoo.dot"      dot
+  writeUtf8File "out/zoo.tex"      tex
+  writeUtf8File "out/zoo-notes.md" notes
   putStrLn "Wrote out/zoo.dot"
   putStrLn "Wrote out/zoo.tex"
   putStrLn "Wrote out/zoo-notes.md"
   putStrLn ""
-  putStrLn "  Render to SVG:    dot -Tsvg out/zoo.dot -o out/zoo.svg"
-  putStrLn "  Render to PNG:    dot -Tpng out/zoo.dot -o out/zoo.png"
-  putStrLn "  Render via TeX:   pdflatex -output-directory=out out/zoo.tex"
+  putStrLn "  Public image policy: keep this as text data; render only out/zoo-proved.png."
   putStrLn ""
   putStrLn "===== Model report ====="
   mapM_ printReport models
@@ -121,16 +131,15 @@ proved = do
       dot   = renderDot   edges
       tex   = renderTikZ  edges
       notes = renderNotes edges
-  withFile "out/zoo-proved.dot"      WriteMode $ \h -> hPutStr h dot
-  withFile "out/zoo-proved.tex"      WriteMode $ \h -> hPutStr h tex
-  withFile "out/zoo-proved-notes.md" WriteMode $ \h -> hPutStr h notes
+  writeUtf8File "out/zoo-proved.dot"      dot
+  writeUtf8File "out/zoo-proved.tex"      tex
+  writeUtf8File "out/zoo-proved-notes.md" notes
   putStrLn "Wrote out/zoo-proved.dot"
   putStrLn "Wrote out/zoo-proved.tex"
   putStrLn "Wrote out/zoo-proved-notes.md"
   putStrLn ""
   putStrLn $ "Proved edges: " ++ show (length edges)
   putStrLn ""
-  putStrLn "  Render to SVG:    dot -Tsvg out/zoo-proved.dot -o out/zoo-proved.svg"
   putStrLn "  Render to PNG:    dot -Tpng out/zoo-proved.dot -o out/zoo-proved.png"
   putStrLn "  Render via TeX:   pdflatex -output-directory=out out/zoo-proved.tex"
 
@@ -141,25 +150,23 @@ auto = do
       dot   = renderDot   edges
       tex   = renderTikZ  edges
       notes = renderNotes edges
-  withFile "out/zoo-auto.dot"      WriteMode $ \h -> hPutStr h dot
-  withFile "out/zoo-auto.tex"      WriteMode $ \h -> hPutStr h tex
-  withFile "out/zoo-auto-notes.md" WriteMode $ \h -> hPutStr h notes
+  writeUtf8File "out/zoo-auto.dot"      dot
+  writeUtf8File "out/zoo-auto.tex"      tex
+  writeUtf8File "out/zoo-auto-notes.md" notes
   putStrLn "Wrote out/zoo-auto.dot"
   putStrLn "Wrote out/zoo-auto.tex"
   putStrLn "Wrote out/zoo-auto-notes.md"
   putStrLn ""
   putStrLn $ "Edges inferred: " ++ show (length edges)
   putStrLn ""
-  putStrLn "  Render to SVG:    dot -Tsvg out/zoo-auto.dot -o out/zoo-auto.svg"
-  putStrLn "  Render to PNG:    dot -Tpng out/zoo-auto.dot -o out/zoo-auto.png"
-  putStrLn "  Render via TeX:   pdflatex -output-directory=out out/zoo-auto.tex"
+  putStrLn "  Public image policy: keep this as text data; render only out/zoo-proved.png."
 
 -- | A: 含意行列 HTML
 matrix :: IO ()
 matrix = do
   createDirectoryIfMissing True "out"
   let html = renderMatrix defaultZoo
-  withFile "out/zoo-matrix.html" WriteMode $ \h -> hPutStr h html
+  writeUtf8File "out/zoo-matrix.html" html
   putStrLn "Wrote out/zoo-matrix.html"
 
 -- | B: 反例モデルカード HTML
@@ -167,7 +174,7 @@ sep :: IO ()
 sep = do
   createDirectoryIfMissing True "out"
   html <- renderCounterexamplesHtml defaultQueries
-  withFile "out/counterexamples.html" WriteMode $ \h -> hPutStr h html
+  writeUtf8File "out/counterexamples.html" html
   putStrLn "Wrote out/counterexamples.html"
   putStrLn $ "  " ++ show (length sepQs) ++ " counterexample card(s)"
   where
@@ -179,7 +186,7 @@ guide = do
   createDirectoryIfMissing True "out"
   let ms = namedModels
       html = renderGuideHtml ms
-  withFile "out/zoo-guide.html" WriteMode $ \h -> hPutStr h html
+  writeUtf8File "out/zoo-guide.html" html
   putStrLn "Wrote out/zoo-guide.html"
   putStrLn $ "  " ++ show (length ms) ++ " named model(s)"
 
@@ -247,7 +254,7 @@ classify = do
     , ("4点ダイアモンド", diamondCarrier)
     ]
   let html = renderClassifyHtml sections
-  withFile "out/zoo-classify.html" WriteMode $ \h -> hPutStr h html
+  writeUtf8File "out/zoo-classify.html" html
   putStrLn "Wrote out/zoo-classify.html"
   where
     run (name, c) = do
@@ -264,8 +271,26 @@ lattice :: IO ()
 lattice = do
   createDirectoryIfMissing True "out"
   let html = renderLatticeHtml defaultZoo
-  withFile "out/zoo-lattice.html" WriteMode $ \h -> hPutStr h html
+  writeUtf8File "out/zoo-lattice.html" html
   putStrLn "Wrote out/zoo-lattice.html"
+
+-- | F: G2-FG2 階層専用 dot + HTML
+g2chain :: IO ()
+g2chain = do
+  createDirectoryIfMissing True "out"
+  writeUtf8File "out/zoo-g2chain.dot"  renderG2ChainDot
+  writeUtf8File "out/zoo-g2chain.html" renderG2ChainHtml
+  putStrLn "Wrote out/zoo-g2chain.dot"
+  putStrLn "Wrote out/zoo-g2chain.html"
+
+-- | G: 代数系階層図 dot + HTML
+algebra :: IO ()
+algebra = do
+  createDirectoryIfMissing True "out"
+  writeUtf8File "out/zoo-algebra.dot"  renderAlgebraHierDot
+  writeUtf8File "out/zoo-algebra.html" renderAlgebraHierHtml
+  putStrLn "Wrote out/zoo-algebra.dot"
+  putStrLn "Wrote out/zoo-algebra.html"
 
 search :: IO ()
 search = do

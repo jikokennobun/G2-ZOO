@@ -13,12 +13,16 @@ module G2Zoo
   , module G2Zoo.Report
   , module G2Zoo.Classify
   , module G2Zoo.Guide
+  , module G2Zoo.AlgebraHier
+  , module G2Zoo.G2Chain
   ) where
 
 import G2Zoo.APS
 import G2Zoo.Algebra
+import G2Zoo.AlgebraHier
 import G2Zoo.AutoZoo
 import G2Zoo.Classify
+import G2Zoo.G2Chain
 import G2Zoo.Guide
 import G2Zoo.Instances
 import G2Zoo.PreOrder

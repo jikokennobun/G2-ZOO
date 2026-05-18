@@ -53,9 +53,11 @@ jobs:
           stack exec g2-zoo -- lattice
           stack exec g2-zoo -- classify
           stack exec g2-zoo -- guide
-          dot -Tsvg out/zoo.dot        -o out/zoo.svg
-          dot -Tsvg out/zoo-auto.dot   -o out/zoo-auto.svg
-          dot -Tsvg out/zoo-proved.dot -o out/zoo-proved.svg
+          stack exec g2-zoo -- g2chain
+          stack exec g2-zoo -- algebra
+          dot -Tpng out/zoo-proved.dot   -o out/zoo-proved.png
+          dot -Tpng out/zoo-g2chain.dot  -o out/zoo-g2chain.png
+          dot -Tpng out/zoo-algebra.dot  -o out/zoo-algebra.png
 
       - name: Create index.html
         run: |
@@ -67,89 +69,47 @@ jobs:
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <title>G2-Zoo: APS 動物園</title>
             <style>
-              body {
-                font-family: sans-serif;
-                max-width: 1200px;
-                margin: 2em auto;
-                padding: 0 1.5em;
-                color: #222;
-                background: #fafafa;
-              }
-              h1 { font-size: 1.6em; margin-bottom: 0.3em; }
-              p.subtitle { color: #555; margin-top: 0; }
-              h2 { font-size: 1.2em; border-bottom: 1px solid #ccc; padding-bottom: 0.2em; }
-              figure { margin: 1.5em 0; background: white; padding: 1em; border: 1px solid #ddd; border-radius: 4px; }
-              figcaption { font-style: italic; color: #555; margin-top: 0.6em; font-size: 0.9em; }
-              img { max-width: 100%; display: block; margin: 0 auto; }
-              .legend { font-size: 0.9em; background: #f4f4f4; padding: 0.8em 1.2em; border-radius: 4px; margin: 1em 0; }
-              .legend dt { font-weight: bold; float: left; width: 8em; }
-              .legend dd { margin-left: 8.5em; margin-bottom: 0.3em; }
-              .reports { display: flex; gap: 1em; flex-wrap: wrap; margin: 1em 0 2em; }
-              .report-link {
-                display: inline-block;
-                padding: 0.5em 1.2em;
-                background: #1a7a1a;
-                color: white;
-                text-decoration: none;
-                border-radius: 4px;
-                font-size: 0.9em;
-              }
-              .report-link:hover { background: #155e15; }
+              body { background: #fff; color: #000; font-family: monospace;
+                     line-height: 1.5; margin: 0 auto; max-width: 900px; padding: 1em 2em 3em; }
+              h1 { font-size: 1.4em; margin: 0.3em 0 0.5em; }
+              h2 { font-size: 1.1em; margin-top: 1.2em; border-bottom: 1px solid #000; padding-bottom: 0.1em; }
+              a { color: #00f; }
+              nav a { display: block; margin: 0.1em 0; }
+              img { display: block; max-width: 100%; height: auto; border: 1px solid #ccc; margin: 0.5em 0; }
+              ul { margin-top: 0.3em; }
             </style>
           </head>
           <body>
-            <h1>G2-Zoo: APS 動物園</h1>
-            <p class="subtitle">
-              APS (Abstract Provability Structure) 周辺の命題間の含意関係を視覚化したグラフ。<br>
-              Beklemishev &amp; Shamkanov (2016) および渋谷個別セミナー (2026) の内容に基づく。
-            </p>
+            <h1>抽象的証明可能体系動物園 (Zoo of APS)</h1>
+            <p>APS (Abstract Provability Structure) 周辺の命題間の含意関係を整理したページ。
+            Beklemishev &amp; Shamkanov (2016) と渋谷個別セミナー (2026) のメモに基づく。</p>
 
-            <div class="legend">
-              <dl>
-                <dt>実線</dt>
-                <dd>含意が成立する (文脈ラベルを付記)</dd>
-                <dt>点線 + ×</dt>
-                <dd>反例モデルが存在する (分離)</dd>
-                <dt>点線 + ?</dt>
-                <dd>含意の成否が未解決</dd>
-              </dl>
-            </div>
+            <nav>
+              <a href="https://jikokennobun.github.io/">&larr; 自己嫌悪文のページへ戻る</a>
+            </nav>
 
-            <h2>補助レポート</h2>
-            <div class="reports">
-              <a class="report-link" href="zoo-matrix.html">A: 含意行列</a>
-              <a class="report-link" href="counterexamples.html">B: 反例モデルカード</a>
-              <a class="report-link" href="zoo-lattice.html">C: 格子図ビュー</a>
-              <a class="report-link" href="zoo-classify.html">D: モデル分類DB</a>
-              <a class="report-link" href="zoo-guide.html">E: モデル構成ガイド</a>
-            </div>
+            <h2>分類図</h2>
+            <img src="zoo-proved.png" alt="APS 動物園：成立した含意の分類図">
 
-            <h2>手書き動物園</h2>
-            <figure>
-              <img src="zoo.svg" alt="手書き動物園">
-              <figcaption>
-                seminar2 メモから手書きした既知の含意・反例関係。
-                出典: <a href="zoo-notes.md">zoo-notes.md</a>
-              </figcaption>
-            </figure>
+            <h2>ページ一覧</h2>
+            <nav>
+              <a href="zoo-lattice.html">格子図ビュー</a>
+              <a href="zoo-g2chain.html">G2-FG2 階層図</a>
+              <a href="zoo-algebra.html">代数系階層図</a>
+              <a href="zoo-classify.html">有限モデル分類データベース</a>
+              <a href="zoo-guide.html">有限 APS モデル構成ガイド</a>
+              <a href="zoo-matrix.html">含意行列</a>
+              <a href="counterexamples.html">反例モデルカード</a>
+            </nav>
 
-            <h2>自動生成動物園</h2>
-            <figure>
-              <img src="zoo-auto.svg" alt="自動生成動物園">
-              <figcaption>
-                3点線形担体上の全モデル (729件) を列挙して機械的に推論した動物園。
-                出典: <a href="zoo-auto-notes.md">zoo-auto-notes.md</a>
-              </figcaption>
-            </figure>
-
-            <h2>実線のみ動物園（格子図）</h2>
-            <figure>
-              <img src="zoo-proved.svg" alt="実線のみ動物園">
-              <figcaption>
-                正の含意（成立が証明されている関係）のみを抽出した整理済みグラフ。
-                出典: <a href="zoo-proved-notes.md">zoo-proved-notes.md</a>
-              </figcaption>
-            </figure>
+            <h2>テキストデータ</h2>
+            <ul>
+              <li><a href="zoo-proved.dot">zoo-proved.dot</a> / <a href="zoo-proved.tex">zoo-proved.tex</a> / <a href="zoo-proved-notes.md">zoo-proved-notes.md</a></li>
+              <li><a href="zoo.dot">zoo.dot</a> / <a href="zoo.tex">zoo.tex</a> / <a href="zoo-notes.md">zoo-notes.md</a></li>
+              <li><a href="zoo-auto.dot">zoo-auto.dot</a> / <a href="zoo-auto.tex">zoo-auto.tex</a> / <a href="zoo-auto-notes.md">zoo-auto-notes.md</a></li>
+              <li><a href="zoo-g2chain.dot">zoo-g2chain.dot</a></li>
+              <li><a href="zoo-algebra.dot">zoo-algebra.dot</a></li>
+            </ul>
           </body>
           </html>
           HTMLEOF

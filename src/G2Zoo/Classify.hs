@@ -147,10 +147,10 @@ renderClassifyHtml sections = unlines $
   [ "  <button class=\"tab-btn" ++ (if i == 0 then " active" else "")
     ++ "\" onclick=\"switchTab('" ++ secId i ++ "',this)\">"
     ++ htmlEsc name ++ "</button>"
-  | (i, (name, _, _)) <- zip [0..] sections
+  | (i, (name, _, _)) <- zip [(0 :: Int)..] sections
   ] ++
   [ "</nav>" ] ++
-  concatMap renderSection (zip [0..] sections) ++
+  concatMap renderSection (zip [(0 :: Int)..] sections) ++
   [ "<script>" ++ js ++ "</script>"
   , "</body></html>"
   ]
@@ -202,14 +202,14 @@ renderTable sid groups = unlines $
   [ "  <th class=\"sortable" ++ grpCls col ++ "\" onclick=\"sortTable('tbl-"
     ++ sid ++ "'," ++ show (col + 1) ++ ")\">"
     ++ htmlEsc label ++ "</th>"
-  | (col, (label, _, _)) <- zip [0..] propCols
+  | (col, (label, _, _)) <- zip [(0 :: Int)..] propCols
   ] ++
   [ "  <th class=\"sortable count-hdr\" onclick=\"sortTable('tbl-"
     ++ sid ++ "'," ++ show (length propCols + 1) ++ ")\">件数</th>"
   , "</tr></thead>"
   , "<tbody>"
   ] ++
-  concatMap (renderGroupRow sid) (zip [0..] groups) ++
+  concatMap (renderGroupRow sid) (zip [(0 :: Int)..] groups) ++
   [ "</tbody></table></div>" ]
   where
     grpCls c
@@ -256,42 +256,42 @@ renderGroupRow sid (rowIdx, pg) =
 css :: String
 css = concat
   [ "* { box-sizing: border-box; }"
-  , "body { font-family: sans-serif; margin: 1.5em; background: #fafafa; color: #222; font-size: 0.93em; }"
-  , "h1 { font-size: 1.4em; margin-bottom: 0.2em; }"
-  , "h2 { font-size: 1.1em; border-bottom: 1px solid #ccc; padding-bottom: 0.15em; margin-top: 0.4em; }"
-  , "p  { color: #555; margin: 0.2em 0 0.5em; }"
-  , ".tab-bar { display: flex; gap: 0.3em; margin-bottom: 0; border-bottom: 2px solid #ccc; }"
-  , ".tab-btn { padding: 0.35em 1em; border: 1px solid #ccc; border-bottom: none; border-radius: 4px 4px 0 0;"
-  , "           background: #eee; cursor: pointer; font-size: 0.9em; }"
-  , ".tab-btn.active { background: #fff; font-weight: bold; border-bottom: 2px solid #fff; margin-bottom: -2px; }"
-  , ".tab-pane { display: none; padding-top: 0.7em; }"
+  , "body { background: #fff; color: #000; font-family: monospace;"
+  , "       line-height: 1.5; margin: 0 auto; max-width: 1100px; padding: 1em 2em 3em; }"
+  , "h1 { font-size: 1.3em; margin: 0.3em 0 0.5em; }"
+  , "h2 { font-size: 1.1em; margin-top: 0.5em; border-bottom: 1px solid #000; padding-bottom: 0.1em; }"
+  , "p  { margin: 0.2em 0 0.5em; }"
+  , ".tab-bar { display: flex; flex-wrap: wrap; gap: 0.25em; margin: 0.7em 0 0;"
+  , "           border-bottom: 2px solid #000; }"
+  , ".tab-btn { padding: 0.2em 0.7em; border: 1px solid #000; border-bottom: none;"
+  , "           background: #fff; cursor: pointer; font-family: monospace; font-size: 0.9em; }"
+  , ".tab-btn.active { background: #eee; font-weight: bold; }"
+  , ".tab-pane { display: none; padding-top: 0.5em; }"
   , ".tab-pane.active { display: block; }"
   , ".filter-bar { display: flex; flex-wrap: wrap; gap: 0.3em; align-items: center;"
-  , "              margin-bottom: 0.5em; background: #f0f0f0; padding: 0.4em 0.6em; border-radius: 4px; }"
-  , ".filter-label { font-size: 0.82em; color: #666; }"
-  , ".filter-sep { color: #bbb; margin: 0 0.2em; }"
-  , ".fp-btn { padding: 0.15em 0.55em; border: 1px solid #bbb; border-radius: 3px;"
-  , "          cursor: pointer; font-size: 0.8em; background: #fff; transition: all .1s; }"
-  , ".fp-btn.state-yes { background: #d4edda; border-color: #28a745; color: #155724; font-weight: bold; }"
-  , ".fp-btn.state-no  { background: #f8d7da; border-color: #dc3545; color: #721c24; font-weight: bold; }"
-  , ".reset-btn { padding: 0.15em 0.6em; border: 1px solid #999; border-radius: 3px;"
-  , "             cursor: pointer; font-size: 0.8em; background: #fff; margin-left: auto; }"
+  , "              margin-bottom: 0.5em; padding: 0.3em 0;"
+  , "              border-top: 1px solid #ccc; border-bottom: 1px solid #ccc; }"
+  , ".filter-label { font-size: 0.9em; }"
+  , ".filter-sep { margin: 0 0.2em; }"
+  , ".fp-btn { padding: 0.1em 0.4em; border: 1px solid #999; cursor: pointer;"
+  , "          font-family: monospace; background: #fff; font-size: 0.85em; }"
+  , ".fp-btn.state-yes { color: #060; font-weight: bold; border-color: #060; }"
+  , ".fp-btn.state-no  { color: #900; font-weight: bold; border-color: #900; text-decoration: line-through; }"
+  , ".reset-btn { padding: 0.1em 0.4em; border: 1px solid #999; cursor: pointer;"
+  , "             font-family: monospace; background: #fff; font-size: 0.85em; margin-left: auto; }"
   , ".table-wrap { overflow-x: auto; }"
-  , "table { border-collapse: collapse; font-size: 0.84em; }"
-  , "th, td { border: 1px solid #ddd; padding: 3px 6px; text-align: center; white-space: nowrap; }"
-  , "th { background: #f0f0f0; }"
+  , "table { border-collapse: collapse; font-size: 0.88em; }"
+  , "th, td { border: 1px solid #ccc; padding: 2px 5px; text-align: center; white-space: nowrap; }"
+  , "th { background: #f5f5f5; }"
   , "th.sortable { cursor: pointer; user-select: none; }"
-  , "th.sortable:hover { background: #dde; }"
-  , "th.axiom-hdr { background: #e8f0fe; }"
-  , "th.prop-hdr  { background: #f0f0f0; }"
-  , "th.count-hdr { background: #fef9e7; }"
-  , ".pc.yes { color: #1a7a1a; font-weight: bold; }"
-  , ".pc.no  { color: #cc2222; }"
+  , "th.sortable:hover { text-decoration: underline; }"
+  , ".pc.yes { color: #060; font-weight: bold; }"
+  , ".pc.no  { color: #900; }"
   , ".cnt { font-weight: bold; }"
-  , ".xbtn { background: none; border: none; cursor: pointer; padding: 0 3px; color: #777; font-size: 0.85em; }"
-  , ".group-row:hover > td { background: #f0f4ff; }"
-  , ".det-row td { background: #fafafa; text-align: left; }"
-  , ".det-box { padding: 0.4em 1em; font-family: monospace; font-size: 0.88em; }"
+  , ".xbtn { background: none; border: none; cursor: pointer; padding: 0 3px; }"
+  , ".group-row:hover > td { background: #f5f5f5; }"
+  , ".det-row td { background: #f5f5f5; text-align: left; }"
+  , ".det-box { padding: 0.4em 1em; font-family: monospace; }"
   ]
 
 -- ============================================================================
