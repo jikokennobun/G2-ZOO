@@ -1,4 +1,4 @@
-name: Deploy G2-Zoo to GitHub Pages
+name: Deploy APS-ZOO to GitHub Pages
 
 on:
   push:
@@ -36,8 +36,10 @@ jobs:
           enable-stack: true
           stack-version: 'latest'
 
-      - name: Install Graphviz
-        run: sudo apt-get install -y graphviz
+      - name: Install Graphviz and fonts
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y graphviz fonts-noto-cjk
 
       - name: Build
         run: stack build
@@ -59,60 +61,180 @@ jobs:
           dot -Tpng out/zoo-g2chain.dot  -o out/zoo-g2chain.png
           dot -Tpng out/zoo-algebra.dot  -o out/zoo-algebra.png
 
-      - name: Create index.html
+      - name: Create PDF source pages and index
         run: |
+          cat > out/aps-zoo-head.svg << 'SVGEOC'
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 360" role="img" aria-label="APS-ZOO header image">
+            <rect width="1200" height="360" fill="#fff"/>
+            <g fill="none" stroke="#111" stroke-width="3">
+              <path d="M90 245 C230 70, 400 310, 560 120 S890 85, 1060 250"/>
+              <path d="M120 285 H1080"/>
+              <path d="M210 285 V195 H360 V285"/>
+              <path d="M500 285 V155 H675 V285"/>
+              <path d="M835 285 V205 H1010 V285"/>
+            </g>
+            <g font-family="Georgia, 'Times New Roman', serif" fill="#111">
+              <text x="104" y="108" font-size="48">APS-ZOO</text>
+              <text x="104" y="157" font-size="24">abstract provability structures</text>
+              <text x="210" y="186" font-size="30">A1-A4</text>
+              <text x="514" y="146" font-size="30">G2 / FG2</text>
+              <text x="850" y="196" font-size="30">models</text>
+            </g>
+          </svg>
+          SVGEOC
+
+          cat > out/aps-zoo-overview.html << 'HTMLEOF'
+          <!DOCTYPE html>
+          <html lang="ja">
+          <head>
+            <meta charset="UTF-8">
+            <title>APS-ZOO overview</title>
+            <style>
+              body { color:#111; font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans JP",Meiryo,sans-serif; line-height:1.55; margin:0 auto; max-width:920px; padding:1em 2em 3em; }
+              h1 { font-size:1.6em; margin:0.3em 0; }
+              h2 { font-size:1.15em; border-bottom:1px solid #111; margin-top:1.2em; }
+              table { border-collapse:collapse; width:100%; margin:0.7em 0 1em; }
+              th,td { border:1px solid #bbb; padding:5px 8px; text-align:left; vertical-align:top; font-size:0.92em; }
+              th { background:#f5f5f5; }
+              img { display:block; max-width:100%; height:auto; margin:0.5em 0 1em; }
+              @media print { body { max-width:none; padding:0.8cm; font-size:10.5pt; } img,table { break-inside:avoid; } }
+            </style>
+          </head>
+          <body>
+            <img src="aps-zoo-head.svg" alt="APS-ZOO">
+            <h1>APS-ZOO overview</h1>
+            <p>APS を中心に、モデル分類・演算表・反例表をPDFで読むための入口。RM Zoo 型の「データから図を出す」姿勢を保ちつつ、公開ページ自体は最小限にする。</p>
+            <h2>構造の見取り図</h2>
+            <table>
+              <thead><tr><th>対象</th><th>この版での扱い</th><th>備考</th></tr></thead>
+              <tbody>
+                <tr><td>APS</td><td>A1-A4 を満たす基本構造。有限モデル分類、真理値表、反例表の基準。</td><td>既存実装あり。</td></tr>
+                <tr><td>弱含意付きAPS</td><td>内在化条件を弱めた含意付き構造として整理予定。</td><td>PDF上は拡張項目として明示。</td></tr>
+                <tr><td>剰余付きAPS</td><td>Heyting/残余演算と APS の比較対象。</td><td>代数系階層PDFへ接続。</td></tr>
+                <tr><td>ファイバーAPS</td><td>基底ごとの APS を束ねる相対化された構造。</td><td>今後のモデル追加領域。</td></tr>
+                <tr><td>相対APS</td><td>文脈・基底理論をパラメータ化した APS。</td><td>Zoo の辺ラベルに反映。</td></tr>
+                <tr><td>2重APS</td><td>二つの証明可能性演算・二重様相の比較用。</td><td>未実装、設計項目。</td></tr>
+                <tr><td>領域代数</td><td>不動点空間やコンパクト元と接続する代数的領域。</td><td>代数系階層PDFへ接続。</td></tr>
+              </tbody>
+            </table>
+          </body>
+          </html>
+          HTMLEOF
+
+          cat > out/g2-zoo-overview.html << 'HTMLEOF'
+          <!DOCTYPE html>
+          <html lang="ja">
+          <head>
+            <meta charset="UTF-8">
+            <title>G2-ZOO overview</title>
+            <style>
+              body { color:#111; font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans JP",Meiryo,sans-serif; line-height:1.55; margin:0 auto; max-width:920px; padding:1em 2em 3em; }
+              h1 { font-size:1.6em; margin:0.3em 0; }
+              h2 { font-size:1.15em; border-bottom:1px solid #111; margin-top:1.2em; }
+              table { border-collapse:collapse; width:100%; margin:0.7em 0 1em; }
+              th,td { border:1px solid #bbb; padding:5px 8px; text-align:left; vertical-align:top; font-size:0.92em; }
+              th { background:#f5f5f5; }
+              img { display:block; max-width:100%; height:auto; margin:0.5em 0 1em; border:1px solid #ccc; }
+              @media print { body { max-width:none; padding:0.8cm; font-size:10.5pt; } img,table { break-inside:avoid; } }
+            </style>
+          </head>
+          <body>
+            <h1>G2-ZOO overview</h1>
+            <p>第二不完全性現象の周辺を、PDFで読めるように章立てする。</p>
+            <h2>成立した含意の分類図</h2>
+            <img src="zoo-proved.png" alt="成立した含意の分類図">
+            <h2>FG2 と G2 の間の階層</h2>
+            <img src="zoo-g2chain.png" alt="FG2 と G2 の間の階層">
+            <h2>代数系・領域代数への接続</h2>
+            <img src="zoo-algebra.png" alt="代数系階層図">
+            <h2>章立て</h2>
+            <table>
+              <thead><tr><th>章</th><th>内容</th><th>状態</th></tr></thead>
+              <tbody>
+                <tr><td>∃-☒FP と TAUT の間の階層</td><td>不動点存在から恒真性条件へ向かう含意・反例の整理。</td><td>骨組み</td></tr>
+                <tr><td>FG2 と G2 の間の階層</td><td>FG2, WFG2, G2, Loeb, ∃☒-FP の関係。</td><td>実装済み図あり</td></tr>
+                <tr><td>証明可能性条件と無矛盾性動物園</td><td>Con, G2, Loeb, 形式化条件の比較。</td><td>Zoo本体へ接続</td></tr>
+                <tr><td>自己言及補題 vs. 相互言及補題</td><td>単一不動点と相互参照型不動点の比較。</td><td>設計項目</td></tr>
+                <tr><td>基数不変量 (不動点空間)</td><td>不動点空間の大きさ・分類を不変量として扱う。</td><td>設計項目</td></tr>
+              </tbody>
+            </table>
+          </body>
+          </html>
+          HTMLEOF
+
           cat > out/index.html << 'HTMLEOF'
           <!DOCTYPE html>
           <html lang="ja">
           <head>
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>G2-Zoo: APS 動物園</title>
+            <title>APS-ZOO</title>
             <style>
-              body { background: #fff; color: #000; font-family: monospace;
-                     line-height: 1.5; margin: 0 auto; max-width: 900px; padding: 1em 2em 3em; }
-              h1 { font-size: 1.4em; margin: 0.3em 0 0.5em; }
+              body { background: #fff; color: #111;
+                     font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans JP", Meiryo, sans-serif;
+                     line-height: 1.55; margin: 0 auto; max-width: 900px; padding: 1em 2em 3em; }
+              h1 { font-size: 1.55em; margin: 0.3em 0 0.5em; }
               h2 { font-size: 1.1em; margin-top: 1.2em; border-bottom: 1px solid #000; padding-bottom: 0.1em; }
               a { color: #00f; }
               nav a { display: block; margin: 0.1em 0; }
-              img { display: block; max-width: 100%; height: auto; border: 1px solid #ccc; margin: 0.5em 0; }
+              img { display: block; max-width: 100%; height: auto; margin: 0.5em 0 1em; }
               ul { margin-top: 0.3em; }
             </style>
           </head>
           <body>
-            <h1>抽象的証明可能体系動物園 (Zoo of APS)</h1>
-            <p>APS (Abstract Provability Structure) 周辺の命題間の含意関係を整理したページ。
-            Beklemishev &amp; Shamkanov (2016) と渋谷個別セミナー (2026) のメモに基づく。</p>
+            <img src="aps-zoo-head.svg" alt="APS-ZOO">
+            <h1>APS-ZOO</h1>
+            <p>抽象的証明可能体系 (APS) と第二不完全性現象のための、PDF中心の簡素な動物園。</p>
 
             <nav>
               <a href="https://jikokennobun.github.io/">&larr; 自己嫌悪文のページへ戻る</a>
             </nav>
 
-            <h2>分類図</h2>
-            <img src="zoo-proved.png" alt="APS 動物園：成立した含意の分類図">
-
-            <h2>ページ一覧</h2>
+            <h2>PDF</h2>
             <nav>
-              <a href="zoo-lattice.html">格子図ビュー</a>
-              <a href="zoo-g2chain.html">G2-FG2 階層図</a>
-              <a href="zoo-algebra.html">代数系階層図</a>
-              <a href="zoo-classify.html">有限モデル分類データベース</a>
-              <a href="zoo-guide.html">有限 APS モデル構成ガイド</a>
-              <a href="zoo-matrix.html">含意行列</a>
-              <a href="counterexamples.html">反例モデルカード</a>
+              <a href="aps-zoo.pdf">APS-ZOO overview</a>
+              <a href="aps-classification.pdf">APSモデル分類</a>
+              <a href="aps-truth-tables.pdf">APSモデル真理値表</a>
+              <a href="aps-countermodels.pdf">反例モデル表</a>
+              <a href="aps-implication-matrix.pdf">含意行列</a>
+              <a href="g2-zoo.pdf">G2-ZOO overview</a>
+              <a href="g2-lattice.pdf">証明可能性条件と無矛盾性動物園</a>
+              <a href="g2-chain.pdf">FG2 と G2 の間の階層</a>
+              <a href="algebra-domain.pdf">代数系・領域代数</a>
             </nav>
 
-            <h2>テキストデータ</h2>
-            <ul>
-              <li><a href="zoo-proved.dot">zoo-proved.dot</a> / <a href="zoo-proved.tex">zoo-proved.tex</a> / <a href="zoo-proved-notes.md">zoo-proved-notes.md</a></li>
-              <li><a href="zoo.dot">zoo.dot</a> / <a href="zoo.tex">zoo.tex</a> / <a href="zoo-notes.md">zoo-notes.md</a></li>
-              <li><a href="zoo-auto.dot">zoo-auto.dot</a> / <a href="zoo-auto.tex">zoo-auto.tex</a> / <a href="zoo-auto-notes.md">zoo-auto-notes.md</a></li>
-              <li><a href="zoo-g2chain.dot">zoo-g2chain.dot</a></li>
-              <li><a href="zoo-algebra.dot">zoo-algebra.dot</a></li>
-            </ul>
+            <h2>備考</h2>
+            <p>表・分類・反例はPDFにまとめる。HTMLはこの入口だけを公開する。</p>
           </body>
           </html>
           HTMLEOF
+
+      - name: Print PDFs
+        run: |
+          CHROME="$(command -v google-chrome || command -v google-chrome-stable || command -v chromium || command -v chromium-browser || true)"
+          if [ -z "$CHROME" ]; then
+            echo "No Chrome/Chromium executable found" >&2
+            exit 1
+          fi
+          BASE="file://$(pwd)/out"
+          "$CHROME" --headless --no-sandbox --disable-gpu --print-to-pdf=out/aps-zoo.pdf "$BASE/aps-zoo-overview.html"
+          "$CHROME" --headless --no-sandbox --disable-gpu --print-to-pdf=out/aps-classification.pdf "$BASE/zoo-classify.html"
+          "$CHROME" --headless --no-sandbox --disable-gpu --print-to-pdf=out/aps-truth-tables.pdf "$BASE/zoo-guide.html"
+          "$CHROME" --headless --no-sandbox --disable-gpu --print-to-pdf=out/aps-countermodels.pdf "$BASE/counterexamples.html"
+          "$CHROME" --headless --no-sandbox --disable-gpu --print-to-pdf=out/aps-implication-matrix.pdf "$BASE/zoo-matrix.html"
+          "$CHROME" --headless --no-sandbox --disable-gpu --print-to-pdf=out/g2-zoo.pdf "$BASE/g2-zoo-overview.html"
+          "$CHROME" --headless --no-sandbox --disable-gpu --print-to-pdf=out/g2-lattice.pdf "$BASE/zoo-lattice.html"
+          "$CHROME" --headless --no-sandbox --disable-gpu --print-to-pdf=out/g2-chain.pdf "$BASE/zoo-g2chain.html"
+          "$CHROME" --headless --no-sandbox --disable-gpu --print-to-pdf=out/algebra-domain.pdf "$BASE/zoo-algebra.html"
+
+      - name: Prune Pages artifact
+        run: |
+          find out -maxdepth 1 -type f \
+            ! -name 'index.html' \
+            ! -name 'aps-zoo-head.svg' \
+            ! -name '*.pdf' \
+            -delete
+          find out -maxdepth 1 -type f -print | sort
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3

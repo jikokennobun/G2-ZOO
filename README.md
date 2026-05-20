@@ -28,11 +28,19 @@ Scope C:
 - 各 (P, Q) ペアあたり最大1辺（最弱の Proved 文脈、なければ最強の Separated 文脈）
 - `stack exec g2-zoo -- auto` で `out/zoo-auto.dot` / `out/zoo-auto-notes.md` を生成
 
+Scope D:
+
+- GitHub Pages 用の単純な `index.html` を CI で生成
+- 自己嫌悪文ホームページ（<https://jikokennobun.github.io/>）からリンクしやすい Project Pages 構成
+- 公開ページ名は `APS-ZOO`
+- 公開artifactは `index.html`、頭画像 `aps-zoo-head.svg`、PDF群を基本とする
+- 分類・真理値表・反例表・G2-ZOO 図は PDF として公開し、中間HTML/DOT/TEX/PNGはアップロード前に削除する
+- 設計参考は RM Zoo documentation（<https://rmzoo.math.uconn.edu/documentation/>）の「データから図を生成する」構成
+
 未実装（今後の課題）:
 
 - 4〜5元担体／非線形・部分順序での探索拡張
 - Lean／Coqでの形式化
-- GitHub Pages連携（`jikokennobun.github.io`）
 - 含意付きAPSの含意演算定義の検討
 - マグマ・モノイド・代数領域系の型クラス階層
 
@@ -53,14 +61,13 @@ stack exec g2-zoo -- auto    # 動物園の自動生成
 | `search` | 標準出力に分離問題8件の検証結果 | 既知の含意・反例を機械検証 |
 | `auto` | `out/zoo-auto.dot`、`out/zoo-auto-notes.md` | 命題×文脈の全ペアを推論した動物園 |
 
-SVG／PNGへのレンダリング（Graphvizが必要）:
+分類図PNGへのレンダリング（Graphvizが必要）:
 
 ```sh
-dot -Tsvg out/zoo.dot      -o out/zoo.svg
-dot -Tpng out/zoo.dot      -o out/zoo.png
-dot -Tsvg out/zoo-auto.dot -o out/zoo-auto.svg
-dot -Tpng out/zoo-auto.dot -o out/zoo-auto.png
+dot -Tpng out/zoo-proved.dot -o out/zoo-proved.png
 ```
+
+CI ではこの PNG を中間素材として PDF 化し、公開artifactには残さない。
 
 ## 自動生成（`auto`サブコマンド）の使い方
 
@@ -133,14 +140,38 @@ auto = do
 
 注意: 「3点線形担体に反例なし」は数学的な定理の証明ではなく、その担体クラスでの検証にすぎない。4点以上やほかの担体で反例が出ることはある。Lean／Coqでの形式化（Scope D予定）が補完する役割。
 
-SVG／PNGへのレンダリング（Graphvizが必要）:
+分類図PNGへのレンダリング（Graphvizが必要）:
 
 ```sh
-dot -Tsvg out/zoo.dot      -o out/zoo.svg
-dot -Tpng out/zoo.dot      -o out/zoo.png
-dot -Tsvg out/zoo-auto.dot -o out/zoo-auto.svg
-dot -Tpng out/zoo-auto.dot -o out/zoo-auto.png
+dot -Tpng out/zoo-proved.dot -o out/zoo-proved.png
 ```
+
+## GitHub Pages 連携
+
+このリポジトリは `.github/workflows/pages.yml` で GitHub Pages 用成果物を `out/` に生成する。
+想定公開URLは次の通り:
+
+<https://jikokennobun.github.io/G2-ZOO/>
+
+自己嫌悪文ホームページ側には、既存のリンク欄または `seminar_page.html#aps-zoo` 相当の場所から次を差し込む:
+
+```html
+<a href="https://jikokennobun.github.io/G2-ZOO/">抽象的証明可能体系動物園 (Zoo of APS)</a>
+```
+
+公開トップは `APS-ZOO` とし、自己嫌悪文ホームページから地続きに見えるように、戻りリンクと最小限のPDFリンクだけを置く。
+
+CI が公開するPDF:
+
+- `aps-zoo.pdf` — APS-ZOO overview
+- `aps-classification.pdf` — APSモデル分類
+- `aps-truth-tables.pdf` — APSモデル真理値表
+- `aps-countermodels.pdf` — 反例モデル表
+- `aps-implication-matrix.pdf` — 含意行列
+- `g2-zoo.pdf` — G2-ZOO overview
+- `g2-lattice.pdf` — 証明可能性条件と無矛盾性動物園
+- `g2-chain.pdf` — FG2 と G2 の間の階層
+- `algebra-domain.pdf` — 代数系・領域代数
 
 ## テスト
 
@@ -217,6 +248,7 @@ seminar2 メモの Case1-4 が想定通りに公理・命題を充足するか�
 ## 関連リンク
 
 - 逆数学動物園: <https://rmzoo.math.uconn.edu/>
+- RM Zoo documentation: <https://rmzoo.math.uconn.edu/documentation/>
 - Tao の PFR Lean blueprint: <https://terrytao.wordpress.com/2023/11/18/formalizing-the-proof-of-pfr-in-lean4-using-blueprint-a-short-tour/>
 - Graphviz: <https://graphviz.org/>
 - diagrams: <https://diagrams.github.io/>

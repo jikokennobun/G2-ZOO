@@ -48,8 +48,9 @@ kindBadge Open      = "<span class=\"open\">?</span>"
 -- | 全ページ共通 CSS.
 commonCss :: String
 commonCss = unlines
-  [ "body { background: #fff; color: #000; font-family: monospace, serif;"
-  , "       line-height: 1.5; margin: 0 auto; max-width: 900px; padding: 1em 2em 3em; }"
+  [ "body { background: #fff; color: #111;"
+  , "       font-family: system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", \"Noto Sans JP\", Meiryo, sans-serif;"
+  , "       line-height: 1.55; margin: 0 auto; max-width: 900px; padding: 1em 2em 3em; }"
   , "h1 { font-size: 1.3em; margin: 0.3em 0 0.5em; }"
   , "h2 { font-size: 1.1em; margin-top: 1.2em; border-bottom: 1px solid #000; padding-bottom: 0.1em; }"
   , "p  { margin: 0.3em 0 0.7em; }"
@@ -57,6 +58,9 @@ commonCss = unlines
   , ".proved { color: #060; font-weight: bold; }"
   , ".sep    { color: #900; font-weight: bold; }"
   , ".open   { color: #630; font-weight: bold; }"
+  , "@media print { body { max-width: none; padding: 0.8cm; font-size: 10.5pt; }"
+  , "  h1 { font-size: 16pt; } h2 { font-size: 13pt; break-after: avoid; }"
+  , "  table, pre, img { break-inside: avoid; } a { color: #000; text-decoration: none; } }"
   ]
 
 -- ============================================================================

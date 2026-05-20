@@ -179,8 +179,9 @@ renderProps m = concat
 css :: String
 css = concat
   [ "* { box-sizing: border-box; }"
-  , "body { background: #fff; color: #000; font-family: monospace;"
-  , "       line-height: 1.5; margin: 0 auto; max-width: 950px; padding: 1em 2em 3em; }"
+  , "body { background: #fff; color: #111;"
+  , "       font-family: system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", \"Noto Sans JP\", Meiryo, sans-serif;"
+  , "       line-height: 1.55; margin: 0 auto; max-width: 950px; padding: 1em 2em 3em; }"
   , "h1 { font-size: 1.3em; margin: 0.3em 0 0.5em; }"
   , "p  { margin: 0.3em 0 0.7em; }"
   , ".legend { margin: 0.8em 0 1.2em; padding: 0.5em 0;"
@@ -204,4 +205,7 @@ css = concat
   , ".chip { display: inline-block; padding: 0 0.4em; font-size: 0.8em; border: 1px solid #ccc; }"
   , ".chip.yes { color: #060; }"
   , ".chip.no  { color: #aaa; }"
+  , "@media print { body { max-width: none; padding: 0.8cm; font-size: 10.5pt; }"
+  , "  h1 { font-size: 16pt; } .card, table { break-inside: avoid; }"
+  , "  a { color: #000; text-decoration: none; } }"
   ]
