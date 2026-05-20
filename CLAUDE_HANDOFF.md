@@ -7,6 +7,7 @@
 `G2-ZOO` を自己嫌悪文ホームページから参照できる GitHub Pages 用ページとして整える。
 公開名は `APS-ZOO`。見た目は <https://jikokennobun.github.io/> に寄せて、装飾を減らした単純な入口にする。
 設計の参考は RM Zoo documentation (<https://rmzoo.math.uconn.edu/documentation/>)。データから図を生成し、読みにくい巨大HTMLではなくPDFへ逃がす方針にした。
+改善3では渕野昌先生の web page (<https://fuchino.ddo.jp/index-j.html>) を参考に、薄いピンク背景・単純なリンク集・更新記録風の記号を使う方針へ寄せた。
 
 ## 現在の方針
 
@@ -17,16 +18,18 @@
   <a href="https://jikokennobun.github.io/G2-ZOO/">抽象的証明可能体系動物園 (Zoo of APS)</a>
   ```
 
-- 公開artifactは `index.html`、`aps-zoo-head.jpg`、PDF群のみ。
+- 公開artifactは `index.html`、`profile.html`、`aps-zoo-head.jpg`、PDF群、`slides/` 内のPDFのみ。
 - `zoo.svg`、`zoo-auto.svg`、`zoo-proved.svg`、`zoo.png`、`zoo-auto.png`、中間HTML、DOT、TEX、notes は不要。
-- 中間HTML/DOT/PNGはPDF作成後に GitHub Actions の `Prune Pages artifact` で削除する。
+- 中間HTML/DOT/TEX/PNGはPDF作成後に GitHub Actions の `Prune Pages artifact` で削除する。
 
 ## 主な関係ファイル
 
 - `.github/workflows/pages.yml`
   - Pages artifact を `out/` からアップロード。
-  - Graphviz PNG を中間生成し、Chrome headless で PDF 化。
-  - `index.html` は単純なPDFリンク集。
+  - Chrome headless PDF 化は廃止。
+  - `scripts/build_pages.ps1` が TeX ソースとHTMLを生成し、`lualatex` でPDF化。
+  - `index.html` は薄ピンク背景の単純なPDFリンク集。
+  - `profile.html` は自己紹介とスライド置き場。
   - `assets/aps-zoo-head.jpg` を `out/aps-zoo-head.jpg` にコピーし、トップ用ヘッダー画像として使う。
 
 - `src/G2Zoo/Zoo.hs`
@@ -67,7 +70,7 @@ dot -Tpng out/zoo-algebra.dot -o out/zoo-algebra.png
 
 ローカルWindows環境では `dot` が見つからない場合がある。その場合も GitHub Actions の Ubuntu 環境では `sudo apt-get install -y graphviz` 後に生成される。
 
-PDF化はCIで Chrome/Chromium の `--print-to-pdf` を使う。
+PDF化はCIで `lualatex` を使う。TeX ソースは `scripts/build_pages.ps1` の here-string から `out/tex/` に生成され、コンパイル後に削除される。
 
 ## 確認済み
 

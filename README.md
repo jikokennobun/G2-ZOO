@@ -33,9 +33,10 @@ Scope D:
 - GitHub Pages 用の単純な `index.html` を CI で生成
 - 自己嫌悪文ホームページ（<https://jikokennobun.github.io/>）からリンクしやすい Project Pages 構成
 - 公開ページ名は `APS-ZOO`
-- 公開artifactは `index.html`、頭画像 `aps-zoo-head.jpg`、PDF群を基本とする
-- 分類・真理値表・反例表・G2-ZOO 図は PDF として公開し、中間HTML/DOT/TEX/PNGはアップロード前に削除する
+- 公開artifactは `index.html`、`profile.html`、頭画像 `aps-zoo-head.jpg`、PDF群、`slides/` 内の発表資料を基本とする
+- 分類・真理値表・反例表・G2-ZOO 図は TeX から PDF として公開し、中間HTML/DOT/TEX/PNGはアップロード前に削除する
 - 設計参考は RM Zoo documentation（<https://rmzoo.math.uconn.edu/documentation/>）の「データから図を生成する」構成
+- ページの雰囲気は渕野昌先生の web page（<https://fuchino.ddo.jp/index-j.html>）を参考に、薄いピンク背景の簡素なリンク集へ寄せる
 
 未実装（今後の課題）:
 
@@ -160,6 +161,8 @@ dot -Tpng out/zoo-proved.dot -o out/zoo-proved.png
 ```
 
 公開トップは `APS-ZOO` とし、自己嫌悪文ホームページから地続きに見えるように、戻りリンクと最小限のPDFリンクだけを置く。
+PDF は `scripts/build_pages.ps1` で生成した TeX ソースを `lualatex` でコンパイルする。
+表は `tabularx` / `longtable` / `booktabs` を使い、含意図は TikZ で描く。
 
 CI が公開するPDF:
 
@@ -172,6 +175,11 @@ CI が公開するPDF:
 - `g2-lattice.pdf` — 証明可能性条件と無矛盾性動物園
 - `g2-chain.pdf` — FG2 と G2 の間の階層
 - `algebra-domain.pdf` — 代数系・領域代数
+
+自己紹介ページ:
+
+- `profile.html` — 自己紹介、連絡先、スライド置き場
+- `slides/aps_g2_algebraic_reverse_math_v4.pdf` — APS/G2 発表資料
 
 ## テスト
 
