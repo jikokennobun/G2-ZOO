@@ -33,7 +33,7 @@ Scope D:
 - GitHub Pages 用の単純な `index.html` を CI で生成
 - 自己嫌悪文ホームページ（<https://jikokennobun.github.io/>）からリンクしやすい Project Pages 構成
 - 公開ページ名は `APS-ZOO`
-- 公開artifactは `index.html`、頭画像 `aps-zoo-head.svg`、PDF群を基本とする
+- 公開artifactは `index.html`、頭画像 `aps-zoo-head.jpg`、PDF群を基本とする
 - 分類・真理値表・反例表・G2-ZOO 図は PDF として公開し、中間HTML/DOT/TEX/PNGはアップロード前に削除する
 - 設計参考は RM Zoo documentation（<https://rmzoo.math.uconn.edu/documentation/>）の「データから図を生成する」構成
 

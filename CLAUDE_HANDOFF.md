@@ -17,7 +17,7 @@
   <a href="https://jikokennobun.github.io/G2-ZOO/">抽象的証明可能体系動物園 (Zoo of APS)</a>
   ```
 
-- 公開artifactは `index.html`、`aps-zoo-head.svg`、PDF群のみ。
+- 公開artifactは `index.html`、`aps-zoo-head.jpg`、PDF群のみ。
 - `zoo.svg`、`zoo-auto.svg`、`zoo-proved.svg`、`zoo.png`、`zoo-auto.png`、中間HTML、DOT、TEX、notes は不要。
 - 中間HTML/DOT/PNGはPDF作成後に GitHub Actions の `Prune Pages artifact` で削除する。
 
@@ -27,7 +27,7 @@
   - Pages artifact を `out/` からアップロード。
   - Graphviz PNG を中間生成し、Chrome headless で PDF 化。
   - `index.html` は単純なPDFリンク集。
-  - `aps-zoo-head.svg` はトップ用の暫定ヘッダー画像。
+  - `assets/aps-zoo-head.jpg` を `out/aps-zoo-head.jpg` にコピーし、トップ用ヘッダー画像として使う。
 
 - `src/G2Zoo/Zoo.hs`
   - Graphviz DOT 出力を分類図らしくするため、矩形ノード・直角線・抑えた配色へ変更。
@@ -74,7 +74,7 @@ PDF化はCIで Chrome/Chromium の `--print-to-pdf` を使う。
 - `stack build --silent`
 - `stack test --silent`
 - `stack exec g2-zoo` / `auto` / `proved` / `matrix` / `sep` / `lattice` / `classify` / `guide` / `g2chain` / `algebra` によるテキストデータ生成
-- `out/` 内の画像整理は前回確認済み。改善2ではCI artifact側を `index.html` + PDF + head SVG に剪定する方針へ変更。
+- `out/` 内の画像整理は前回確認済み。改善2ではCI artifact側を `index.html` + PDF + head JPG に剪定する方針へ変更。
 - `Invoke-WebRequest http://127.0.0.1:8770/zoo-lattice.html` でHTTP 200
 
 Browserプレビューはローカルサーバー自体はHTTP 200だったが、Codex in-app browser 側で `ERR_BLOCKED_BY_CLIENT` になった。
@@ -90,5 +90,5 @@ Browserプレビューはローカルサーバー自体はHTTP 200だったが�
 ## 次にやるなら
 
 - ホームページリポジトリ側を編集できる状態で、上記リンクを `index.html` または `seminar_page.html` に追加する。
-- `aps-zoo-head.svg` は暫定画像。より魅惑的な画像が決まったら差し替える。
+- `assets/aps-zoo-head.jpg` はユーザー指定のティーパーティー風イラスト。差し替える場合は同名ファイルを更新する。
 - PDF中の未実装章（自己言及 vs 相互言及、基数不変量など）を数学的内容で埋める。
