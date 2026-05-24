@@ -1,4 +1,4 @@
-name: Deploy APS-ZOO to GitHub Pages
+name: Redirect G2-ZOO to APS-ZOO
 
 on:
   push:
@@ -18,60 +18,24 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-
-      - name: Cache Stack
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.stack
-            .stack-work
-          key: ${{ runner.os }}-stack-${{ hashFiles('stack.yaml', '*.cabal') }}
-          restore-keys: |
-            ${{ runner.os }}-stack-
-
-      - name: Set up Haskell (Stack)
-        uses: haskell-actions/setup@v2
-        with:
-          enable-stack: true
-          stack-version: 'latest'
-
-      - name: Install TeX and fonts
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y fonts-noto-cjk texlive-luatex texlive-lang-japanese texlive-latex-recommended texlive-latex-extra texlive-pictures
-
-      - name: Build
-        run: stack build
-
-      - name: Generate Zoo diagrams and reports
+      - name: Create redirect page
         run: |
           mkdir -p out
-          stack exec g2-zoo
-          stack exec g2-zoo -- auto
-          stack exec g2-zoo -- proved
-          stack exec g2-zoo -- matrix
-          stack exec g2-zoo -- sep
-          stack exec g2-zoo -- lattice
-          stack exec g2-zoo -- classify
-          stack exec g2-zoo -- guide
-          stack exec g2-zoo -- g2chain
-          stack exec g2-zoo -- algebra
-
-      - name: Create TeX PDFs and pages
-        shell: pwsh
-        run: ./scripts/build_pages.ps1
-
-      - name: Prune Pages artifact
-        run: |
-          rm -rf out/tex
-          find out -maxdepth 1 -type f \
-            ! -name 'index.html' \
-            ! -name 'profile.html' \
-            ! -name 'aps-zoo-head.jpg' \
-            ! -name '*.pdf' \
-            -delete
-          find out -maxdepth 2 -type f -print | sort
+          cat > out/index.html <<'HTML'
+          <!DOCTYPE html>
+          <html lang="ja">
+          <head>
+            <meta charset="UTF-8">
+            <meta name="robots" content="noindex">
+            <meta http-equiv="refresh" content="0; url=https://jikokennobun.github.io/APS-ZOO/">
+            <link rel="canonical" href="https://jikokennobun.github.io/APS-ZOO/">
+            <title>APS-ZOOへ移動しました</title>
+          </head>
+          <body>
+            <p>この入口は削除しました。<a href="https://jikokennobun.github.io/APS-ZOO/">APS-ZOO</a> へ移動します。</p>
+          </body>
+          </html>
+          HTML
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
